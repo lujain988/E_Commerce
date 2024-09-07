@@ -460,8 +460,6 @@ namespace E_Commerce.Controllers
                 var products = _Db.Products
                     .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
                     .ToList();
-
-                // Return filtered products
                 return Ok(products);
          
         

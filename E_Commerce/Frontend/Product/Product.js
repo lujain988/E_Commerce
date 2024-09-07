@@ -32,18 +32,23 @@ function renderPage(page) {
       <div class="col-lg-4 col-md-6 text-center">
         <div class="single-product-item">
           <div class="product-image">
-            <a href="single-product.html"><img src="${imageUrl}" alt=""></a>
+            <a onclick="saveToLocalStorage(${product.id})"><img src="${imageUrl}" alt=""></a>
           </div>
           <h3>${product.productName}</h3>
           <p class="product-price"> ${product.price}$</p>
           <div class="product-rating" id="rating-${product.id}">
             <!-- Rating will be inserted here -->
           </div>
-          <a href="cart.html" class="cart-btn"><i class="fas fa-shopping-cart"></i> Add to Cart</a>
+          
+          <a href="cart.html" class="cart-btn" ><i class="fas fa-shopping-cart"></i> Add to Cart</a>
           <br>
-          <a href="single-product.html">
-            <i class="fas fa-chevron-right"> see more </i>
-          </a>
+        <a href="#" onclick="saveToLocalStorage(${product.id})" class="see-more-btn" style="color: #ff8c00;">
+  <i class="fas fa-chevron-right"></i> See More
+</a>
+
+
+          
+        
         </div>
       </div>
     `;
@@ -160,9 +165,11 @@ function handleFilterButtonClick() {
   applyFilters();
 }
 
-// Event listener for the filter button
 document.getElementById("filterButton").addEventListener("click", handleFilterButtonClick);
-
+function saveToLocalStorage(id) {
+  localStorage.setItem("products", id);
+  window.location.href = "ProductDetailes.html";
+}
 // Initial calls
 getCategories();
 GetAllProduct();
