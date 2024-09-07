@@ -30,6 +30,9 @@
 	<link rel="stylesheet" href="assets/css/main.css">
 	<!-- responsive -->
 	<link rel="stylesheet" href="assets/css/responsive.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
     <style>.single-product-content {
         margin-left: 171px !important;
     }
@@ -169,7 +172,7 @@
 	<!-- end single product -->
 
 	<!-- more products -->
-	<div class="more-products mb-150">
+	<!-- <div class="more-products mb-150">
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-8 offset-lg-2 text-center">
@@ -212,7 +215,39 @@
 				</div>
 			</div>
 		</div>
-	</div>
+	</div> -->
+    
+    <div class="container bootdey">
+        <div class="col-md-12 bootstrap snippets">
+            <div class="rate">
+                <input type="radio" id="star5" name="rate" value="5" />
+                <label for="star5" title="text">5 stars</label>
+                <input type="radio" id="star4" name="rate" value="4" />
+                <label for="star4" title="text">4 stars</label>
+                <input type="radio" id="star3" name="rate" value="3" />
+                <label for="star3" title="text">3 stars</label>
+                <input type="radio" id="star2" name="rate" value="2" />
+                <label for="star2" title="text">2 stars</label>
+                <input type="radio" id="star1" name="rate" value="1" />
+                <label for="star1" title="text">1 star</label>
+            </div>
+            <div class="panel">
+                <div class="panel-body">
+                    <textarea id="comment" class="form-control" rows="2" placeholder="What are you thinking?"></textarea>
+                    <div class="mar-top clearfix">
+                        <button id="submitComment" class="btn btn-sm btn-primary pull-right" type="submit">
+                            <i class="fa fa-pencil fa-fw"></i> Share
+                        </button>
+                    </div>
+                </div>
+                <div id="commentsSection">
+                    <!-- Comments will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
 	<!-- end more products -->
 
 	<!-- logo carousel -->

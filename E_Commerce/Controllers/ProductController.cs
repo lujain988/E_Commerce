@@ -138,7 +138,7 @@ namespace E_Commerce.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddReview([FromBody] ProductRequistDTO dto)
         {
-            if (dto == null || dto.ProductId <= 0 || dto.UserId <= 0 || string.IsNullOrWhiteSpace(dto.Comment) || dto.Rating <= 0)
+            if (dto == null || dto.ProductId <= 0 || dto.UserId <= 0 || string.IsNullOrWhiteSpace(dto.Comment) )
             {
                 return BadRequest("Invalid review data.");
             }
@@ -161,7 +161,6 @@ namespace E_Commerce.Controllers
                 UserId = dto.UserId,
                 ProductId = dto.ProductId,
                 Comment = dto.Comment,
-                Rating = dto.Rating,
             };
 
             _Db.Reviews.Add(review);
@@ -207,14 +206,42 @@ namespace E_Commerce.Controllers
                 new
                 {
                     id = review.Id,
-                    rating = review.Rating,
                     comment = review.Comment,
+                    rating= review.Rating,
                     status = review.Status,
                     product = review.Product.ProductName,
                     user = user.Username
+                })
+                .Where(r => r.status == "Approved")
+                .ToList();
 
-                }).Where(r => r.status == "Approved").ToList();
             return Ok(approvedReviews);
+        }
+        [HttpPost("/SubmitReview")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult SubmitReview([FromBody] ReviewDto reviewDto)
+        {
+            // Check if the user has already rated this product
+            var existingReview = _Db.Reviews
+                .FirstOrDefault(r => r.UserId == reviewDto.UserId && r.ProductId == reviewDto.ProductId);
+
+            if (existingReview != null)
+            {
+                return BadRequest("User has already submitted a review for this product.");
+            }
+            var newReview = new Review
+            {
+                ProductId = reviewDto.ProductId,
+                UserId = reviewDto.UserId,
+                Rating = reviewDto.Rating,
+            };
+
+           
+            _Db.Reviews.Add(newReview);
+            _Db.SaveChanges();
+
+            return CreatedAtAction(nameof(GetApprovedReviews), new { id = newReview.Id }, newReview);
         }
 
 
