@@ -134,6 +134,7 @@ async function fetchAverageRating(productId) {
       star.addEventListener('click', async function() {
           const rating = this.value; 
           const userId = 4; // Example user ID
+          // const userId = localStorage.getItem('userId'); // this for logged in user
           const productId = localStorage.getItem("products"); 
 
           // Prepare the data to be sent for rating
@@ -176,6 +177,7 @@ document.getElementById('submitComment').addEventListener('click', async functio
 
     
     const userId = 1;
+  // const userId = localStorage.getItem('userId'); // this for logged in user
     const productId = localStorage.getItem("products"); 
    
     const commentData = {
