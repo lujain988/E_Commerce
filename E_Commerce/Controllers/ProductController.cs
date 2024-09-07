@@ -195,28 +195,34 @@ namespace E_Commerce.Controllers
             return Ok(review);
         }
 
-        [HttpGet("/Reviews")]
+      
+        [HttpGet("/Reviews/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public IActionResult GetApprovedReviews()
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetApprovedReviews(int productId)
         {
-            var approvedReviews = _Db.Reviews.Join(_Db.Users,
-                review => review.UserId,
-                user => user.Id,
-                (review, user) =>
-                new
-                {
-                    id = review.Id,
-                    comment = review.Comment,
-                    rating= review.Rating,
-                    status = review.Status,
-                    product = review.Product.ProductName,
-                    user = user.Username
-                })
-                .Where(r => r.status == "Approved")
+            var approvedReviews = _Db.Reviews
+                .Join(_Db.Users,
+                    review => review.UserId,
+                    user => user.Id,
+                    (review, user) =>
+                    new
+                    {
+                        id = review.Id,
+                        comment = review.Comment,
+                        rating = review.Rating,
+                        status = review.Status,
+                        productId = review.ProductId,
+                        user = user.Username
+                    })
+                .Where(r => r.status == "Approved" && r.productId == productId) 
                 .ToList();
 
             return Ok(approvedReviews);
         }
+
+
+
         [HttpPost("/SubmitReview")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -230,18 +236,19 @@ namespace E_Commerce.Controllers
             {
                 return BadRequest("User has already submitted a review for this product.");
             }
+
             var newReview = new Review
             {
                 ProductId = reviewDto.ProductId,
                 UserId = reviewDto.UserId,
                 Rating = reviewDto.Rating,
+            
             };
 
-           
             _Db.Reviews.Add(newReview);
             _Db.SaveChanges();
 
-            return CreatedAtAction(nameof(GetApprovedReviews), new { id = newReview.Id }, newReview);
+            return CreatedAtAction(nameof(GetApprovedReviews), new { productId = newReview.ProductId }, newReview);
         }
 
 
@@ -313,111 +320,6 @@ namespace E_Commerce.Controllers
 
             return Redirect(facebookShareUrl);
         }
-
-        //[HttpGet("/filterCategory/")]
-        //public IActionResult FilterCategory(string category)
-        //{
-        //    if (string.IsNullOrEmpty(category) || category == "*")
-        //    {
-        //        var products = _Db.Products
-        //        .Join(_Db.Categories,
-        //            product => product.CategoryId,
-        //            category => category.Id,
-        //            (product, category) => new
-        //            {
-        //                id = product.Id,
-        //                productName = product.ProductName,
-        //                description = product.Description,
-        //                price = product.Price,
-        //                stockQuantity = product.StockQuantity,
-        //                image = product.Image,
-        //                discount = product.Discount,
-        //                categoryName = category.CategoryName
-        //            })
-        //        .GroupJoin(_Db.Reviews,
-        //            product => product.id,
-        //            review => review.ProductId,
-        //            (product, reviews) => new
-        //            {
-        //                product.id,
-        //                product.productName,
-        //                product.description,
-        //                product.price,
-        //                product.stockQuantity,
-        //                product.image,
-        //                product.discount,
-        //                product.categoryName,
-        //                reviews = reviews.DefaultIfEmpty()  // Ensures the left join
-        //            })
-        //        .SelectMany(p => p.reviews,
-        //            (p, review) => new
-        //            {
-        //                id = p.id,
-        //                productName = p.productName,
-        //                description = p.description,
-        //                price = p.price,
-        //                stockQuantity = p.stockQuantity,
-        //                image = p.image,
-        //                discount = p.discount,
-        //                categoryName = p.categoryName,
-        //                reviewRate = review != null ? review.Rating : (decimal?)null,
-        //                comment = review != null ? review.Comment : null,
-        //                status = review != null ? review.Status : null,
-        //            }).ToList();
-        //        return Ok(products);
-        //    }
-
-        //    // Filter by category name
-        //    var filteredProducts = _Db.Products.Join(_Db.Categories,
-        //            product => product.CategoryId,
-        //            category => category.Id,
-        //            (product, category) => new
-        //            {
-        //                id = product.Id,
-        //                productName = product.ProductName,
-        //                description = product.Description,
-        //                price = product.Price,
-        //                stockQuantity = product.StockQuantity,
-        //                image = product.Image,
-        //                discount = product.Discount,
-        //                categoryName = category.CategoryName
-        //            })
-        //        .GroupJoin(_Db.Reviews,
-        //            product => product.id,
-        //            review => review.ProductId,
-        //            (product, reviews) => new
-        //            {
-        //                product.id,
-        //                product.productName,
-        //                product.description,
-        //                product.price,
-        //                product.stockQuantity,
-        //                product.image,
-        //                product.discount,
-        //                product.categoryName,
-        //                reviews = reviews.DefaultIfEmpty()  // Ensures the left join
-        //            })
-        //        .SelectMany(p => p.reviews,
-        //            (p, review) => new
-        //            {
-        //                id = p.id,
-        //                productName = p.productName,
-        //                description = p.description,
-        //                price = p.price,
-        //                stockQuantity = p.stockQuantity,
-        //                image = p.image,
-        //                discount = p.discount,
-        //                categoryName = p.categoryName,
-        //                reviewRate = review != null ? review.Rating : (decimal?)null,
-        //                comment = review != null ? review.Comment : null,
-        //                status = review != null ? review.Status : null,
-        //            })
-        //        .Where(p => category == "All" || p.categoryName == category)
-        //.ToList();
-
-        //    return Ok(filteredProducts);
-        //}
-
 
         [HttpGet("/getCategories/")]
         public IActionResult GetCategories()

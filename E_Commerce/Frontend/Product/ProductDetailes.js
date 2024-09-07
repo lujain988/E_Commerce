@@ -41,9 +41,9 @@ async function getAllProduct() {
     console.log(data);
    
 }
-debugger;
+
 async function fetchComments(productId) {
-    let url = `https://localhost:7222/Reviews`;
+    let url = `https://localhost:7222/Reviews/${productId}`;
     
     try {
         let response = await fetch(url);
@@ -57,9 +57,6 @@ async function fetchComments(productId) {
             console.error("Comments section element not found");
             return;
         }
-        
-        // Filter comments based on the product ID
-        comments = comments.filter(comment => comment.product === productId);
 
         // Clear existing content
         commentsSection.innerHTML = '';
@@ -67,30 +64,42 @@ async function fetchComments(productId) {
         // Create HTML content
         comments.forEach(comment => {
             let cardHTML = `
-            <div class="media-block">
-                <div class="media-body">
-                    <div class="mar-btm">
-                        <a href="#" class="btn-link text-semibold media-heading box-inline">${comment.user}</a>
-                        <p class="text-muted text-sm"><i class="fa fa-mobile fa-lg"></i> - From Mobile - Just Now</p>
-                    </div>
-                    <p>${comment.comment}</p>
-                    <div class="pad-ver">
-                        <div class="btn-group">
-                            <a class="btn btn-sm btn-default btn-hover-success" href="#"><i class="fa fa-thumbs-up"></i></a>
-                            <a class="btn btn-sm btn-default btn-hover-danger" href="#"><i class="fa fa-thumbs-down"></i></a>
-                        </div>
-                        <a class="btn btn-sm btn-default btn-hover-primary" href="#">Comment</a>
-                    </div>
-                    <hr>
-                </div>
+          <div class="media-block">
+    <div class="media-body">
+        <div class="mar-btm">
+<a href="#" class="user-link">${comment.user}</a>
+        </div>
+        <p>${comment.comment}</p>
+        <div class="pad-ver">
+            <div class="rating-stars">
+                ${getStarRating(comment.rating)}
             </div>
+        </div>
+        <hr>
+    </div>
+</div>
+
             `;
             commentsSection.innerHTML += cardHTML;
         });
     } catch (error) {
         console.error("Error fetching comments:", error);
     }
+    
+};
+function getStarRating(rating) {
+    let stars = '';
+    for (let i = 1; i <= 5; i++) {
+        if (i <= rating) {
+            stars += `<i class="fas fa-star star"></i>`;
+        } else {
+            stars += `<i class="fas fa-star star empty"></i>`;
+        }
+    }
+    return stars;
 }
+
+fetchComments();
 
 // Call fetchComments when the page loads
 document.addEventListener('DOMContentLoaded', function() {
@@ -124,7 +133,7 @@ async function fetchAverageRating(productId) {
   ratingInputs.forEach(star => {
       star.addEventListener('click', async function() {
           const rating = this.value; 
-          const userId = 1; // Example user ID
+          const userId = 4; // Example user ID
           const productId = localStorage.getItem("products"); 
 
           // Prepare the data to be sent for rating

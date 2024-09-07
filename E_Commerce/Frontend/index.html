@@ -3,15 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Product Reviews</title>
 </head>
-<body>
-    <button onclick="shareToFacebook(123)">Share to Facebook</button>
+<body> 
+    <h1>Product Reviews</h1>
+    <div id="commentsSection">
+        <!-- Comments will be injected here -->
+    </div>
 
 <script>
-function shareToFacebook(productId) {
-    window.location.href = `https://localhost:7228/api/Product/share/facebook/1`;
-}
+async function fetchComments(productId) {
+    let url = `https://localhost:7222/Reviews`;
+    
+    try {
+        let response = await fetch(url);
+        if (!response.ok) throw new Error(`Failed to fetch comments: ${response.statusText}`);
+        
+        let comments = await response.json();
+        
+        // Ensure commentsSection exists
+        let commentsSection = document.getElementById('commentsSection');
+        if (!commentsSection) {
+            console.error("Comments section element not found");
+            return;
+        }
+
+        // Clear existing content
+        commentsSection.innerHTML = '';
+
+        // Create HTML content
+        comments.forEach(comment => {
+            let cardHTML = `
+            <div class="media-block">
+                <div class="media-body">
+                    <div class="mar-btm">
+                        <a href="#" class="btn-link text-semibold media-heading box-inline">${comment.user}</a>
+                        <p class="text-muted text-sm"><i class="fa fa-mobile fa-lg"></i> - From Mobile - Just Now</p>
+                    </div>
+                    <p>${comment.comment}</p>
+                    <div class="pad-ver">
+                        <div class="btn-group">
+                            <a class="btn btn-sm btn-default btn-hover-success" href="#"><i class="fa fa-thumbs-up"></i></a>
+                            <a class="btn btn-sm btn-default btn-hover-danger" href="#"><i class="fa fa-thumbs-down"></i></a>
+                        </div>
+                        <a class="btn btn-sm btn-default btn-hover-primary" href="#">Comment</a>
+                    </div>
+                    <hr>
+                </div>
+            </div>
+            `;
+            commentsSection.innerHTML += cardHTML;
+        });
+    } catch (error) {
+        console.error("Error fetching comments:", error);
+    }
+};
+
+fetchComments();
 </script>
 
 </body>
