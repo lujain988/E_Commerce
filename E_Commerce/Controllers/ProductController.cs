@@ -2,6 +2,7 @@
 using E_Commerce.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Commerce.Controllers
 {
@@ -286,9 +287,177 @@ namespace E_Commerce.Controllers
             return Redirect(facebookShareUrl);
         }
 
+        [HttpGet("/filterCategory/")]
+        public IActionResult FilterCategory(string category)
+        {
+            if (string.IsNullOrEmpty(category) || category == "*")
+            {
+                var products = _Db.Products
+                .Join(_Db.Categories,
+                    product => product.CategoryId,
+                    category => category.Id,
+                    (product, category) => new
+                    {
+                        id = product.Id,
+                        productName = product.ProductName,
+                        description = product.Description,
+                        price = product.Price,
+                        stockQuantity = product.StockQuantity,
+                        image = product.Image,
+                        discount = product.Discount,
+                        categoryName = category.CategoryName
+                    })
+                .GroupJoin(_Db.Reviews,
+                    product => product.id,
+                    review => review.ProductId,
+                    (product, reviews) => new
+                    {
+                        product.id,
+                        product.productName,
+                        product.description,
+                        product.price,
+                        product.stockQuantity,
+                        product.image,
+                        product.discount,
+                        product.categoryName,
+                        reviews = reviews.DefaultIfEmpty()  // Ensures the left join
+                    })
+                .SelectMany(p => p.reviews,
+                    (p, review) => new
+                    {
+                        id = p.id,
+                        productName = p.productName,
+                        description = p.description,
+                        price = p.price,
+                        stockQuantity = p.stockQuantity,
+                        image = p.image,
+                        discount = p.discount,
+                        categoryName = p.categoryName,
+                        reviewRate = review != null ? review.Rating : (decimal?)null,
+                        comment = review != null ? review.Comment : null,
+                        status = review != null ? review.Status : null,
+                    }).ToList();
+                return Ok(products);
+            }
+
+            // Filter by category name
+            var filteredProducts = _Db.Products.Join(_Db.Categories,
+                    product => product.CategoryId,
+                    category => category.Id,
+                    (product, category) => new
+                    {
+                        id = product.Id,
+                        productName = product.ProductName,
+                        description = product.Description,
+                        price = product.Price,
+                        stockQuantity = product.StockQuantity,
+                        image = product.Image,
+                        discount = product.Discount,
+                        categoryName = category.CategoryName
+                    })
+                .GroupJoin(_Db.Reviews,
+                    product => product.id,
+                    review => review.ProductId,
+                    (product, reviews) => new
+                    {
+                        product.id,
+                        product.productName,
+                        product.description,
+                        product.price,
+                        product.stockQuantity,
+                        product.image,
+                        product.discount,
+                        product.categoryName,
+                        reviews = reviews.DefaultIfEmpty()  // Ensures the left join
+                    })
+                .SelectMany(p => p.reviews,
+                    (p, review) => new
+                    {
+                        id = p.id,
+                        productName = p.productName,
+                        description = p.description,
+                        price = p.price,
+                        stockQuantity = p.stockQuantity,
+                        image = p.image,
+                        discount = p.discount,
+                        categoryName = p.categoryName,
+                        reviewRate = review != null ? review.Rating : (decimal?)null,
+                        comment = review != null ? review.Comment : null,
+                        status = review != null ? review.Status : null,
+                    })
+                .Where(p => category == "All" || p.categoryName == category)
+        .ToList();
+
+            return Ok(filteredProducts);
+        }
 
 
+        [HttpGet("/getCategories/")]
+        public IActionResult GetCategories()
+        {
+            var categories = _Db.Categories
+                .Select(c => new
+                {
+                    categoryName = c.CategoryName
+                })
+                .Distinct()
+                .ToList();
+
+            return Ok(categories);
+        }
+        [HttpGet("/filterOnCategory/")]
+        public IActionResult Filter(string category)
+        {
+            if (string.IsNullOrEmpty(category) || category == "All" || category == "*")
+            {
+                // Return all products when category is "All" or "*"
+                var products = _Db.Products
+                    .Join(_Db.Categories,
+                        product => product.CategoryId,
+                        category => category.Id,
+                        (product, category) => new
+                        {
+                            id = product.Id,
+                            productName = product.ProductName,
+                            description = product.Description,
+                            price = product.Price,
+                            stockQuantity = product.StockQuantity,
+                            image = product.Image,
+                            discount = product.Discount,
+                            categoryName = category.CategoryName
+                        })
+                    .ToList();
+
+                return Ok(products);
+            }
+
+            // Return products filtered by the selected category
+            var filteredProducts = _Db.Products
+                .Join(_Db.Categories,
+                    product => product.CategoryId,
+                    category => category.Id,
+                    (product, category) => new
+                    {
+                        id = product.Id,
+                        productName = product.ProductName,
+                        description = product.Description,
+                        price = product.Price,
+                        stockQuantity = product.StockQuantity,
+                        image = product.Image,
+                        discount = product.Discount,
+                        categoryName = category.CategoryName
+                    })
+                .Where(p => p.categoryName == category)
+                .ToList();
+
+            return Ok(filteredProducts);
+        }
 
 
     }
+
+
+
+
+
 }
