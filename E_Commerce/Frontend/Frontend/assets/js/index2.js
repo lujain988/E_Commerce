@@ -39,10 +39,10 @@ async function fetchAndDisplayCategories() {
     }
 }
 
-function saveToLocalStorage(id) {
-    localStorage.setItem("CategoryId", id);
-    window.location.href = "../../../Product/Product.html";
-  }
+// function saveToLocalStorage(id) {
+//     localStorage.setItem("CategoryId", id);
+//     window.location.href = "../../../Product/Product.html";
+//   }
 // Call the function to fetch and display categories
 fetchAndDisplayCategories();
 

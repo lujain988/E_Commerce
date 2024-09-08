@@ -202,21 +202,28 @@ namespace E_Commerce.Controllers
         public IActionResult GetApprovedReviews(int productId)
         {
             var approvedReviews = _Db.Reviews
-                .Join(_Db.Users,
-                    review => review.UserId,
-                    user => user.Id,
-                    (review, user) =>
-                    new
-                    {
-                        id = review.Id,
-                        comment = review.Comment,
-                        rating = review.Rating,
-                        status = review.Status,
-                        productId = review.ProductId,
-                        user = user.Username
-                    })
-                .Where(r => r.status == "Approved" && r.productId == productId) 
-                .ToList();
+      .Join(_Db.Users,
+          review => review.UserId,
+          user => user.Id,
+          (review, user) => new { review, user }) 
+      .Join(_Db.Products, 
+          combined => combined.review.ProductId,
+          product => product.Id,
+          (combined, product) => new 
+          {
+              id = combined.review.Id,
+              user = combined.user.Username,
+              productName = product.ProductName,
+              categoryName = product.Category.CategoryName,
+              comment = combined.review.Comment,
+              rating = combined.review.Rating,
+              status = combined.review.Status,
+              productId = combined.review.ProductId
+        
+          })
+      .Where(r => r.status == "Approved" && r.productId == productId)
+      .ToList();
+
 
             return Ok(approvedReviews);
         }
