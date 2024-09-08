@@ -5,9 +5,9 @@ let filteredProducts = [];
 let selectedCategory = "All";
 let minPrice = 0;
 let maxPrice = Infinity;
+const CategoryId = localStorage.getItem("CategoryId");
 
 async function GetAllProduct() {
-  const CategoryId = localStorage.getItem("CategoryId");
   let url = `https://localhost:7222/api/Product/${CategoryId}`;
   let request = await fetch(url);
   allProducts = await request.json();
@@ -68,17 +68,23 @@ function updatePaginationControls() {
 
   let paginationHTML = `
     <ul>
-      <li ${currentPage === 1 ? 'class="disabled"' : ""}><a href="#" onclick="changePage(${currentPage - 1})">Prev</a></li>
+      <li ${
+        currentPage === 1 ? 'class="disabled"' : ""
+      }><a href="#" onclick="changePage(${currentPage - 1})">Prev</a></li>
   `;
 
   for (let i = 1; i <= totalPages; i++) {
     paginationHTML += `
-      <li ${i === currentPage ? 'class="active"' : ""}><a href="#" onclick="changePage(${i})">${i}</a></li>
+      <li ${
+        i === currentPage ? 'class="active"' : ""
+      }><a href="#" onclick="changePage(${i})">${i}</a></li>
     `;
   }
 
   paginationHTML += `
-      <li ${currentPage === totalPages ? 'class="disabled"' : ""}><a href="#" onclick="changePage(${currentPage + 1})">Next</a></li>
+      <li ${
+        currentPage === totalPages ? 'class="disabled"' : ""
+      }><a href="#" onclick="changePage(${currentPage + 1})">Next</a></li>
     </ul>
   `;
 
@@ -86,7 +92,8 @@ function updatePaginationControls() {
 }
 
 function changePage(page) {
-  if (page < 1 || page > Math.ceil(filteredProducts.length / itemsPerPage)) return;
+  if (page < 1 || page > Math.ceil(filteredProducts.length / itemsPerPage))
+    return;
   currentPage = page;
   renderPage(currentPage);
 }
@@ -105,10 +112,12 @@ function handleCategoryClick(category) {
 }
 
 async function applyFilters() {
-  console.log('Applying filters:', selectedCategory, minPrice, maxPrice);
+  console.log("Applying filters:", selectedCategory, minPrice, maxPrice);
 
   // Fetch products based on category
-  let url = `https://localhost:7222/filterOnCategory?category=${encodeURIComponent(selectedCategory)}`;
+  let url = `https://localhost:7222/filterOnCategory?category=${encodeURIComponent(
+    selectedCategory
+  )}`;
   try {
     const response = await fetch(url);
     filteredProducts = await response.json();
@@ -117,8 +126,8 @@ async function applyFilters() {
   }
 
   // Apply price filter
-  filteredProducts = filteredProducts.filter(product => 
-    product.price >= minPrice && product.price <= maxPrice
+  filteredProducts = filteredProducts.filter(
+    (product) => product.price >= minPrice && product.price <= maxPrice
   );
 
   currentPage = 1; // Reset to the first page
@@ -130,7 +139,8 @@ async function fetchAverageRating(productId) {
   let response = await fetch(url);
   let data = await response.json();
 
-  let averageRating = data && data.averageRating != null ? data.averageRating : 5;
+  let averageRating =
+    data && data.averageRating != null ? data.averageRating : 5;
   let ratingContainer = document.getElementById(`rating-${productId}`);
   ratingContainer.innerHTML = `<i class="fas fa-star"> Rating: ${averageRating}</i>`;
 }
@@ -161,12 +171,14 @@ function handleFilterButtonClick() {
   minPrice = parseFloat(document.getElementById("minPrice").value) || 0;
   maxPrice = parseFloat(document.getElementById("maxPrice").value) || Infinity;
 
-  console.log('Filter button clicked:', minPrice, maxPrice);
-  
+  console.log("Filter button clicked:", minPrice, maxPrice);
+
   applyFilters();
 }
 
-document.getElementById("filterButton").addEventListener("click", handleFilterButtonClick);
+document
+  .getElementById("filterButton")
+  .addEventListener("click", handleFilterButtonClick);
 function saveToLocalStorage(id) {
   localStorage.setItem("products", id);
   window.location.href = "ProductDetailes.html";

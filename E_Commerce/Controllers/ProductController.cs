@@ -138,7 +138,7 @@ namespace E_Commerce.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult AddReview([FromBody] ProductRequistDTO dto)
         {
-            if (dto == null || dto.ProductId <= 0 || dto.UserId <= 0 || string.IsNullOrWhiteSpace(dto.Comment) )
+            if (dto == null || dto.ProductId <= 0 || dto.UserId <= 0 || string.IsNullOrWhiteSpace(dto.Comment))
             {
                 return BadRequest("Invalid review data.");
             }
@@ -195,7 +195,7 @@ namespace E_Commerce.Controllers
             return Ok(review);
         }
 
-      
+
         [HttpGet("/Reviews/{productId}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -205,11 +205,11 @@ namespace E_Commerce.Controllers
       .Join(_Db.Users,
           review => review.UserId,
           user => user.Id,
-          (review, user) => new { review, user }) 
-      .Join(_Db.Products, 
+          (review, user) => new { review, user })
+      .Join(_Db.Products,
           combined => combined.review.ProductId,
           product => product.Id,
-          (combined, product) => new 
+          (combined, product) => new
           {
               id = combined.review.Id,
               user = combined.user.Username,
@@ -219,7 +219,7 @@ namespace E_Commerce.Controllers
               rating = combined.review.Rating,
               status = combined.review.Status,
               productId = combined.review.ProductId
-        
+
           })
       .Where(r => r.status == "Approved" && r.productId == productId)
       .ToList();
@@ -249,7 +249,7 @@ namespace E_Commerce.Controllers
                 ProductId = reviewDto.ProductId,
                 UserId = reviewDto.UserId,
                 Rating = reviewDto.Rating,
-            
+
             };
 
             _Db.Reviews.Add(newReview);
@@ -367,7 +367,6 @@ namespace E_Commerce.Controllers
                 return Ok(products);
             }
 
-            // Return products filtered by the selected category
             var filteredProducts = _Db.Products
                 .Join(_Db.Categories,
                     product => product.CategoryId,
@@ -392,13 +391,13 @@ namespace E_Commerce.Controllers
         [HttpGet("/PriceFilter/")]
         public IActionResult GetPrice([FromQuery] decimal minPrice = 0, [FromQuery] decimal maxPrice = decimal.MaxValue)
         {
-           
-                var products = _Db.Products
-                    .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
-                    .ToList();
-                return Ok(products);
-         
-        
+
+            var products = _Db.Products
+                .Where(p => p.Price >= minPrice && p.Price <= maxPrice)
+                .ToList();
+            return Ok(products);
+
+
         }
 
 
@@ -479,11 +478,44 @@ namespace E_Commerce.Controllers
         }
 
 
+        [HttpGet("/GetAllReview/")]
+        public IActionResult GetAllReview()
+        {
+            var reviews = _Db.Reviews
+                .Join(_Db.Users,
+                    review => review.UserId,
+                    user => user.Id,
+                    (review, user) => new { review, user })
+                .Join(_Db.Products,
+                    combined => combined.review.ProductId,
+                    product => product.Id,
+                    (combined, product) => new
+                    {
+                        id = combined.review.Id,
+                        user = combined.user.Username,
+                        productName = product.ProductName,
+                        categoryName = product.Category.CategoryName,
+                        comment = combined.review.Comment,
+                        rating = combined.review.Rating,
+                        status = combined.review.Status,
+                        productId = combined.review.ProductId
+                    })
+                .OrderBy(r =>
+                  
+                    r.status == "Pending" ? 0 :
+                    r.status == "Approved" ? 1 :
+                    r.status == "Declined" ? 2 :
+                    3 
+                )
+                .ToList();
+
+            return Ok(reviews);
+        }
+
+
+
+
+
 
     }
-
-
-
-
-
-}
+    }

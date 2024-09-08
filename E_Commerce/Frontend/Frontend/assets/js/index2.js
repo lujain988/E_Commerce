@@ -26,7 +26,7 @@ async function fetchAndDisplayCategories() {
                         <img src="../../Uploads/${category.image}" alt="${category.categoryName}">
                     </div>
                     <h3>${category.categoryName}</h3>
-                    <a href="" onclick="saveToLocalStorage(${category.id} class="view-all-btn">View All</a>
+                 <a onclick="saveToLocalStorage(${category.id})" class="view-all-btn">View All</a> 
                 </div>
             `;
         });
@@ -39,10 +39,10 @@ async function fetchAndDisplayCategories() {
     }
 }
 
-// function saveToLocalStorage(id) {
-//     localStorage.setItem("CategoryId", id);
-//     window.location.href = "../../../Product/Product.html";
-//   }
+function saveToLocalStorage(id) {
+    localStorage.setItem("CategoryId", id);
+    window.location.href = "../../../Product/Product.html";
+  }
 // Call the function to fetch and display categories
 fetchAndDisplayCategories();
 
