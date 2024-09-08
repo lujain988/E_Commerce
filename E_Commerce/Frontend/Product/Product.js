@@ -7,7 +7,9 @@ let minPrice = 0;
 let maxPrice = Infinity;
 
 async function GetAllProduct() {
-  let url = "https://localhost:7222/api/Product";
+  const CategoryId = localStorage.getItem("CategoryId");
+
+  let url = `https://localhost:7222/api/Product/${CategoryId}`;
   let request = await fetch(url);
   allProducts = await request.json();
 

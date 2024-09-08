@@ -395,6 +395,84 @@ namespace E_Commerce.Controllers
         }
 
 
+        [HttpGet("CountOfAllProduct")]
+        public IActionResult GCountOfAllProduct()
+        {
+
+            var products = _Db.Products.ToList().Count;
+            return Ok(products);
+
+
+        }
+
+        [HttpPut("{id}/apply-discount")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public IActionResult ApplyDiscount(int id, [FromBody] decimal discount)
+        {
+            // Check if discount is valid
+            if (discount < 0 || discount > 100)
+            {
+                return BadRequest("Discount must be between 0 and 100.");
+            }
+
+            // Find the product by its ID
+            var product = _Db.Products.FirstOrDefault(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            // Apply the discount
+            product.Discount = discount;
+
+
+            _Db.SaveChanges();
+
+            return Ok(new
+            {
+                message = "Discount applied successfully",
+                productId = product.Id,
+                discount = product.Discount
+            });
+        }
+
+        [HttpGet("discounted")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public IActionResult GetDiscountedProducts()
+        {
+            var discountedProducts = _Db.Products
+                .Where(p => p.Discount > 0) // Filter products with a discount greater than 0
+                .Select(product => new
+                {
+                    id = product.Id,
+                    productName = product.ProductName,
+                    description = product.Description,
+                    price = product.Price,
+                    stockQuantity = product.StockQuantity,
+                    image = product.Image,
+                    discount = product.Discount,
+                    categoryName = product.Category.CategoryName,
+                    reviews = product.Reviews.Select(review => new
+                    {
+                        reviewRate = review.Rating,
+                        comment = review.Comment,
+                        status = review.Status
+                    }).ToList()
+                })
+                .ToList();
+            if (discountedProducts.Count == 0)
+                return NotFound();
+
+
+            return Ok(discountedProducts);
+        }
+
+
+
     }
 
 
